@@ -19,8 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (stored) {
       try {
         products = JSON.parse(stored);
-        // ensure isHit field exists
-        products.forEach(p => { if (p.isHit === undefined) p.isHit = false; });
+        products.forEach(p => { 
+          if (p.isHit === undefined) p.isHit = false;
+          if (!p.description) p.description = '';
+        });
       } catch(e) {
         products = JSON.parse(JSON.stringify(defaultProducts));
       }
@@ -33,6 +35,19 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem('garage48_products', JSON.stringify(products));
   }
   loadProducts();
+
+  // ----- RESET TO DEFAULT (for GitHub Pages) -----
+  function resetToDefault() {
+    if (confirm('Сбросить все товары до заводских настроек?')) {
+      products = JSON.parse(JSON.stringify(defaultProducts));
+      saveProducts();
+      renderHits();
+      filterProducts();
+      renderAdminProductList();
+      document.getElementById('adminPanelMessage').textContent = 'Товары сброшены до заводских!';
+      document.getElementById('adminPanelMessage').style.color = '#0a7e0a';
+    }
+  }
 
   // ----- RENDER FUNCTIONS -----
   function renderHits() {
@@ -270,6 +285,18 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
     `).join('');
+    
+    // Add reset button if not exists
+    if (!document.getElementById('resetDefaultBtn')) {
+      const resetBtn = document.createElement('button');
+      resetBtn.id = 'resetDefaultBtn';
+      resetBtn.className = 'btn admin-btn';
+      resetBtn.style.marginTop = '16px';
+      resetBtn.style.background = '#dc3545';
+      resetBtn.textContent = '🔄 Сбросить товары (заводские)';
+      resetBtn.onclick = resetToDefault;
+      list.parentNode.appendChild(resetBtn);
+    }
   }
 
   // ----- GLOBAL FUNCTIONS for admin (used in onclick) -----
@@ -357,7 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
       product.image = imageUrl;
       saveChangesAndClose();
     } else {
-      // keep existing image
       saveChangesAndClose();
     }
   });
