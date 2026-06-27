@@ -1,236 +1,379 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // ---------- ДЕФОЛТНЫЕ ТОВАРЫ ----------
-    const defaultProducts = [
-        { name: 'Дрель ударная', brand: 'Bosch', price: 12500, image: 'https://via.placeholder.com/200?text=Bosch', hit: true },
-        { name: 'Шуруповерт', brand: 'Makita', price: 9800, image: 'https://via.placeholder.com/200?text=Makita', hit: true },
-        { name: 'УШМ (болгарка)', brand: 'DeWALT', price: 11200, image: 'https://via.placeholder.com/200?text=DeWALT', hit: true },
-        { name: 'Перфоратор', brand: 'Bosch', price: 18900, image: 'https://via.placeholder.com/200?text=Bosch+2', hit: true },
-        { name: 'Лобзик', brand: 'Makita', price: 8400, image: 'https://via.placeholder.com/200?text=Makita+2', hit: false },
-        { name: 'Фрезер', brand: 'DeWALT', price: 15600, image: 'https://via.placeholder.com/200?text=DeWALT+2', hit: false },
-        { name: 'Шлифмашина', brand: 'Bosch', price: 7200, image: 'https://via.placeholder.com/200?text=Bosch+3', hit: false },
-        { name: 'Пила циркулярная', brand: 'Makita', price: 13500, image: 'https://via.placeholder.com/200?text=Makita+3', hit: false }
-    ];
+document.addEventListener('DOMContentLoaded', function() {
 
-    // ---------- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ----------
-    let products = JSON.parse(localStorage.getItem('garage48_products'));
-    if (!products || products.length === 0) {
-        products = defaultProducts;
-        localStorage.setItem('garage48_products', JSON.stringify(products));
+  // ----- DEFAULT PRODUCTS -----
+  const defaultProducts = [
+    { id: 1, name: 'Дрель ударная', brand: 'Bosch', price: 8900, description: 'Мощность: 800Вт, Регулировка оборотов, Плавный пуск', image: 'https://via.placeholder.com/200/333/ff6b00?text=Bosch', isHit: true },
+    { id: 2, name: 'Шуруповерт', brand: 'Makita', price: 7500, description: '18В, 2 скорости, Металлический патрон', image: 'https://via.placeholder.com/200/333/ff6b00?text=Makita', isHit: true },
+    { id: 3, name: 'Перфоратор', brand: 'DeWALT', price: 12300, description: '700Вт, SDS+ патрон, 3 режима работы', image: 'https://via.placeholder.com/200/333/ff6b00?text=DeWALT', isHit: true },
+    { id: 4, name: 'Угловая шлифмашина', brand: 'Bosch', price: 6700, description: '125мм, 1100Вт, Защитный кожух', image: 'https://via.placeholder.com/200/333/ff6b00?text=Bosch', isHit: false },
+    { id: 5, name: 'Лобзик', brand: 'Makita', price: 5400, description: '450Вт, Регулировка скорости, Маятниковый ход', image: 'https://via.placeholder.com/200/333/ff6b00?text=Makita', isHit: false },
+    { id: 6, name: 'Рубанок', brand: 'DeWALT', price: 10200, description: '600Вт, Глубина строгания 2мм', image: 'https://via.placeholder.com/200/333/ff6b00?text=DeWALT', isHit: false },
+    { id: 7, name: 'Фрезер', brand: 'Bosch', price: 14500, description: '1400Вт, Регулировка оборотов, Цанга 8мм', image: 'https://via.placeholder.com/200/333/ff6b00?text=Bosch', isHit: false },
+    { id: 8, name: 'Пила цепная', brand: 'Makita', price: 9800, description: '2000Вт, Шина 40см, Автоматическая смазка', image: 'https://via.placeholder.com/200/333/ff6b00?text=Makita', isHit: false }
+  ];
+
+  // ----- LOCAL STORAGE -----
+  let products = [];
+  function loadProducts() {
+    const stored = localStorage.getItem('garage48_products');
+    if (stored) {
+      try {
+        products = JSON.parse(stored);
+        // ensure isHit field exists
+        products.forEach(p => { if (p.isHit === undefined) p.isHit = false; });
+      } catch(e) {
+        products = JSON.parse(JSON.stringify(defaultProducts));
+      }
+    } else {
+      products = JSON.parse(JSON.stringify(defaultProducts));
     }
+    saveProducts();
+  }
+  function saveProducts() {
+    localStorage.setItem('garage48_products', JSON.stringify(products));
+  }
+  loadProducts();
 
-    // ---------- DOM-ЭЛЕМЕНТЫ ----------
-    const hitsGrid = document.getElementById('hitsGrid');
-    const catalogGrid = document.getElementById('catalogGrid');
-    const filterBrand = document.getElementById('filterBrand');
-    const filterSearch = document.getElementById('filterSearch');
-    const filterPriceMin = document.getElementById('filterPriceMin');
-    const filterPriceMax = document.getElementById('filterPriceMax');
-    const adminTrigger = document.getElementById('adminTrigger');
-    const adminModal = document.getElementById('adminModal');
-    const closeModal = document.getElementById('closeModal');
-    const loginForm = document.getElementById('loginForm');
-    const adminPanel = document.getElementById('adminPanel');
-    const addProductForm = document.getElementById('addProductForm');
-    const logoutAdmin = document.getElementById('logoutAdmin');
-    const deleteList = document.getElementById('deleteList');
-    const burgerBtn = document.getElementById('burgerBtn');
-    const navMenu = document.getElementById('navMenu');
+  // ----- RENDER FUNCTIONS -----
+  function renderHits() {
+    const hits = products.filter(p => p.isHit === true);
+    const grid = document.getElementById('hitsGrid');
+    if (hits.length === 0) {
+      grid.innerHTML = '<p style="color:#b0b0b0; grid-column:1/-1; text-align:center;">Нет товаров в хитах</p>';
+      return;
+    }
+    grid.innerHTML = hits.map(p => createCardHTML(p)).join('');
+  }
 
-    // ---------- НАВИГАЦИЯ (SPA) ----------
-    document.querySelectorAll('.nav-link, [data-page]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            const pageName = link.dataset.page;
-            if (pageName) {
-                e.preventDefault();
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                document.getElementById(pageName).classList.add('active');
-                document.querySelector(`.nav-link[data-page="${pageName}"]`)?.classList.add('active');
-                if (pageName === 'catalog') renderCatalog();
-                if (pageName === 'home') renderHits();
-                navMenu.classList.remove('active');
-            }
-        });
+  function renderCatalog(filtered) {
+    const grid = document.getElementById('catalogGrid');
+    const items = filtered || products;
+    if (items.length === 0) {
+      grid.innerHTML = '<p style="color:#b0b0b0; grid-column:1/-1; text-align:center;">Товары не найдены</p>';
+      return;
+    }
+    grid.innerHTML = items.map(p => createCardHTML(p)).join('');
+  }
+
+  function createCardHTML(p) {
+    const hitBadge = p.isHit ? '<span class="hit-badge">Хит</span>' : '';
+    const desc = p.description ? `<div class="description">${p.description}</div>` : '';
+    return `<div class="product-card">
+      ${hitBadge}
+      <img src="${p.image || 'https://via.placeholder.com/200/444/ff6b00?text=NO+IMG'}" alt="${p.name}">
+      <h4>${p.name}</h4>
+      <div class="brand">${p.brand}</div>
+      ${desc}
+      <div class="price">${p.price} ₽</div>
+    </div>`;
+  }
+
+  // ----- FILTER -----
+  function filterProducts() {
+    const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+    const brand = document.getElementById('filterBrand').value.toLowerCase().trim();
+    const priceFrom = parseFloat(document.getElementById('filterPriceFrom').value) || 0;
+    const priceTo = parseFloat(document.getElementById('filterPriceTo').value) || Infinity;
+
+    const filtered = products.filter(p => {
+      const matchName = p.name.toLowerCase().includes(search);
+      const matchBrand = p.brand.toLowerCase().includes(brand);
+      const matchPrice = p.price >= priceFrom && p.price <= priceTo;
+      return matchName && matchBrand && matchPrice;
     });
+    renderCatalog(filtered);
+  }
 
-    // Бургер-меню
-    burgerBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
+  // attach filter events
+  document.getElementById('filterSearch').addEventListener('input', filterProducts);
+  document.getElementById('filterBrand').addEventListener('input', filterProducts);
+  document.getElementById('filterPriceFrom').addEventListener('input', filterProducts);
+  document.getElementById('filterPriceTo').addEventListener('input', filterProducts);
+
+  // ----- NAVIGATION (pages + burger) -----
+  const navLinks = document.querySelectorAll('.nav-link');
+  const pages = {
+    home: document.getElementById('page-home'),
+    catalog: document.getElementById('page-catalog'),
+    contacts: document.getElementById('page-contacts')
+  };
+  const burger = document.getElementById('burger');
+  const navMenu = document.getElementById('navMenu');
+
+  function setActivePage(pageId) {
+    Object.keys(pages).forEach(key => {
+      pages[key].classList.toggle('active-page', key === pageId);
     });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.dataset.page === pageId);
+    });
+    navMenu.classList.remove('open');
+    if (pageId === 'catalog') {
+      filterProducts();
+    }
+  }
 
-    // ---------- РЕНДЕР КАРТОЧЕК ----------
-    function renderCard(product) {
-        const badge = product.hit ? '<div class="card-badge">ХИТ</div>' : '';
-        return `
-            <div class="card">
-                ${badge}
-                <img src="${product.image}" alt="${product.name}" loading="lazy">
-                <div class="card-body">
-                    <div class="card-brand">${product.brand}</div>
-                    <div class="card-title">${product.name}</div>
-                    <div class="card-price">${product.price.toLocaleString('ru-RU')} ₽</div>
-                </div>
-            </div>
-        `;
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.dataset.page;
+      setActivePage(page);
+    });
+  });
+
+  document.querySelector('.hero-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setActivePage('catalog');
+  });
+
+  burger.addEventListener('click', () => {
+    navMenu.classList.toggle('open');
+  });
+
+  // ----- ADMIN MODAL -----
+  const adminOverlay = document.getElementById('adminOverlay');
+  const adminSecretBtn = document.getElementById('adminSecretBtn');
+  const adminClose = document.getElementById('adminClose');
+  const adminLoginBtn = document.getElementById('adminLoginBtn');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const adminPanel = document.getElementById('adminPanel');
+  const addProductBtn = document.getElementById('addProductBtn');
+
+  let adminLogged = false;
+
+  adminSecretBtn.addEventListener('click', () => {
+    adminOverlay.classList.add('active');
+    if (adminLogged) {
+      adminLoginForm.style.display = 'none';
+      adminPanel.style.display = 'block';
+      renderAdminProductList();
+    } else {
+      adminLoginForm.style.display = 'block';
+      adminPanel.style.display = 'none';
+    }
+    document.getElementById('adminMessage').textContent = '';
+  });
+
+  adminClose.addEventListener('click', () => {
+    adminOverlay.classList.remove('active');
+  });
+  adminOverlay.addEventListener('click', (e) => {
+    if (e.target === adminOverlay) adminOverlay.classList.remove('active');
+  });
+
+  adminLoginBtn.addEventListener('click', () => {
+    const login = document.getElementById('adminLogin').value.trim();
+    const pass = document.getElementById('adminPassword').value.trim();
+    if (login === 'admin' && pass === 'admin123') {
+      adminLogged = true;
+      adminLoginForm.style.display = 'none';
+      adminPanel.style.display = 'block';
+      renderAdminProductList();
+      document.getElementById('adminMessage').textContent = 'Вход выполнен';
+      document.getElementById('adminMessage').style.color = '#0a7e0a';
+    } else {
+      document.getElementById('adminMessage').textContent = 'Неверный логин или пароль';
+      document.getElementById('adminMessage').style.color = '#c0392b';
+    }
+  });
+
+  // ----- TABS -----
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      const tabName = this.dataset.tab;
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('adminTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+      if (tabName === 'manage') {
+        renderAdminProductList();
+      }
+    });
+  });
+
+  // ----- ADD PRODUCT -----
+  addProductBtn.addEventListener('click', () => {
+    const name = document.getElementById('addName').value.trim();
+    const brand = document.getElementById('addBrand').value.trim();
+    const price = parseFloat(document.getElementById('addPrice').value);
+    const description = document.getElementById('addDescription').value.trim();
+    const imageUrl = document.getElementById('addImageUrl').value.trim();
+    const fileInput = document.getElementById('addImageFile');
+    const file = fileInput.files[0];
+
+    if (!name || !brand || isNaN(price) || price <= 0) {
+      document.getElementById('adminPanelMessage').textContent = 'Заполните название, бренд и цену';
+      document.getElementById('adminPanelMessage').style.color = '#c0392b';
+      return;
     }
 
-    function renderHits() {
-        const hits = products.filter(p => p.hit === true);
-        if (hits.length === 0) {
-            hitsGrid.innerHTML = '<p style="color:#b0b0b0;grid-column:1/-1;text-align:center;padding:40px;">Пока нет хитов продаж</p>';
-        } else {
-            hitsGrid.innerHTML = hits.slice(0, 4).map(renderCard).join('');
-        }
+    let finalImage = imageUrl || 'https://via.placeholder.com/200/444/ff6b00?text=NO+IMG';
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        finalImage = e.target.result;
+        addProductToArray(name, brand, price, description, finalImage);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      addProductToArray(name, brand, price, description, finalImage);
     }
+  });
 
-    function renderCatalog() {
-        const brand = filterBrand.value.toLowerCase();
-        const search = filterSearch.value.toLowerCase();
-        const minPrice = parseFloat(filterPriceMin.value) || 0;
-        const maxPrice = parseFloat(filterPriceMax.value) || Infinity;
-
-        const filtered = products.filter(p => {
-            const matchBrand = !brand || p.brand.toLowerCase().includes(brand);
-            const matchSearch = !search || p.name.toLowerCase().includes(search);
-            const matchPrice = p.price >= minPrice && p.price <= maxPrice;
-            return matchBrand && matchSearch && matchPrice;
-        });
-
-        catalogGrid.innerHTML = filtered.map(renderCard).join('');
-
-        const brands = [...new Set(products.map(p => p.brand))];
-        filterBrand.innerHTML = '<option value="">Все</option>' + 
-            brands.map(b => `<option value="${b}">${b}</option>`).join('');
-    }
-
-    // ---------- РЕНДЕР СПИСКА ДЛЯ УДАЛЕНИЯ ----------
-    function renderDeleteList() {
-        if (products.length === 0) {
-            deleteList.innerHTML = '<p style="padding:15px;text-align:center;color:#999;">Нет товаров для удаления</p>';
-            return;
-        }
-        
-        deleteList.innerHTML = products.map((p, index) => `
-            <div class="delete-item">
-                <div class="delete-item-info">
-                    <strong>${p.brand} — ${p.name}</strong>
-                    <span style="color:#777;">ID: ${index}</span>
-                </div>
-                <span class="delete-item-price">${p.price.toLocaleString('ru-RU')} ₽</span>
-                <button class="btn-danger" onclick="deleteProduct(${index})" style="margin-left:10px;">
-                    <i class="fas fa-trash"></i> Удалить
-                </button>
-            </div>
-        `).join('');
-    }
-
-    // ---------- ФУНКЦИЯ УДАЛЕНИЯ (глобальная) ----------
-    window.deleteProduct = function(index) {
-        const product = products[index];
-        const confirmed = confirm(`Точно удалить "${product.brand} — ${product.name}"?\nЦена: ${product.price.toLocaleString('ru-RU')} ₽`);
-        
-        if (confirmed) {
-            products.splice(index, 1);
-            localStorage.setItem('garage48_products', JSON.stringify(products));
-            renderDeleteList();
-            renderCatalog();
-            renderHits();
-        }
+  function addProductToArray(name, brand, price, description, image) {
+    const newProduct = {
+      id: Date.now() + Math.random(),
+      name: name,
+      brand: brand,
+      price: price,
+      description: description || '',
+      image: image,
+      isHit: false
     };
+    products.push(newProduct);
+    saveProducts();
+    renderHits();
+    filterProducts();
+    renderAdminProductList();
+    
+    document.getElementById('addName').value = '';
+    document.getElementById('addBrand').value = '';
+    document.getElementById('addPrice').value = '';
+    document.getElementById('addDescription').value = '';
+    document.getElementById('addImageUrl').value = '';
+    document.getElementById('addImageFile').value = '';
+    document.getElementById('adminPanelMessage').textContent = 'Товар добавлен!';
+    document.getElementById('adminPanelMessage').style.color = '#0a7e0a';
+  }
 
-    // Фильтры мгновенно
-    filterBrand.addEventListener('change', renderCatalog);
-    filterSearch.addEventListener('input', renderCatalog);
-    filterPriceMin.addEventListener('input', renderCatalog);
-    filterPriceMax.addEventListener('input', renderCatalog);
+  // ----- ADMIN PRODUCT LIST -----
+  function renderAdminProductList() {
+    const list = document.getElementById('adminProductList');
+    if (products.length === 0) {
+      list.innerHTML = '<p style="color:#666;">Нет товаров</p>';
+      return;
+    }
+    list.innerHTML = products.map(p => `
+      <div class="admin-product-item" data-id="${p.id}">
+        <div class="info">
+          <div class="name">${p.name}</div>
+          <div class="brand">${p.brand}</div>
+          <div class="price">${p.price} ₽</div>
+        </div>
+        <div class="admin-item-actions">
+          <button class="hit-btn ${p.isHit ? 'active' : ''}" onclick="toggleHit('${p.id}')">
+            ${p.isHit ? '⭐ Хит' : '⭐'}
+          </button>
+          <button class="edit-btn" onclick="openEditModal('${p.id}')">✏️</button>
+          <button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
 
-    // ---------- АДМИНКА ----------
-    adminTrigger.addEventListener('click', () => {
-        adminModal.classList.add('active');
-        loginForm.style.display = 'block';
-        adminPanel.style.display = 'none';
-        document.getElementById('loginUser').value = '';
-        document.getElementById('loginPass').value = '';
-    });
+  // ----- GLOBAL FUNCTIONS for admin (used in onclick) -----
+  window.toggleHit = function(id) {
+    const product = products.find(p => p.id == id);
+    if (product) {
+      product.isHit = !product.isHit;
+      saveProducts();
+      renderHits();
+      filterProducts();
+      renderAdminProductList();
+    }
+  };
 
-    closeModal.addEventListener('click', () => {
-        adminModal.classList.remove('active');
-    });
+  window.deleteProduct = function(id) {
+    if (confirm('Удалить этот товар?')) {
+      products = products.filter(p => p.id != id);
+      saveProducts();
+      renderHits();
+      filterProducts();
+      renderAdminProductList();
+    }
+  };
 
-    window.addEventListener('click', (e) => {
-        if (e.target === adminModal) adminModal.classList.remove('active');
-    });
+  // ----- EDIT MODAL -----
+  const editOverlay = document.getElementById('editOverlay');
+  const editClose = document.getElementById('editClose');
+  const saveEditBtn = document.getElementById('saveEditBtn');
+  let editingId = null;
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const pass = document.getElementById('loginPass').value;
-        if (pass === 'admin123') {
-            loginForm.style.display = 'none';
-            adminPanel.style.display = 'block';
-            renderDeleteList();
-        } else {
-            alert('Неверный пароль!');
-        }
-    });
+  window.openEditModal = function(id) {
+    const product = products.find(p => p.id == id);
+    if (!product) return;
+    editingId = id;
+    document.getElementById('editProductId').value = id;
+    document.getElementById('editName').value = product.name;
+    document.getElementById('editBrand').value = product.brand;
+    document.getElementById('editPrice').value = product.price;
+    document.getElementById('editDescription').value = product.description || '';
+    document.getElementById('editImageUrl').value = product.image || '';
+    document.getElementById('editImageFile').value = '';
+    document.getElementById('editMessage').textContent = '';
+    editOverlay.classList.add('active');
+  };
 
-    logoutAdmin.addEventListener('click', () => {
-        adminModal.classList.remove('active');
-        loginForm.style.display = 'block';
-        adminPanel.style.display = 'none';
-        document.getElementById('loginUser').value = '';
-        document.getElementById('loginPass').value = '';
-    });
+  editClose.addEventListener('click', () => {
+    editOverlay.classList.remove('active');
+  });
+  editOverlay.addEventListener('click', (e) => {
+    if (e.target === editOverlay) editOverlay.classList.remove('active');
+  });
 
-    // Функция конвертации файла в Base64
-    function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
+  saveEditBtn.addEventListener('click', () => {
+    const id = document.getElementById('editProductId').value;
+    const product = products.find(p => p.id == id);
+    if (!product) return;
+
+    const name = document.getElementById('editName').value.trim();
+    const brand = document.getElementById('editBrand').value.trim();
+    const price = parseFloat(document.getElementById('editPrice').value);
+    const description = document.getElementById('editDescription').value.trim();
+    const imageUrl = document.getElementById('editImageUrl').value.trim();
+    const fileInput = document.getElementById('editImageFile');
+    const file = fileInput.files[0];
+
+    if (!name || !brand || isNaN(price) || price <= 0) {
+      document.getElementById('editMessage').textContent = 'Заполните название, бренд и цену';
+      document.getElementById('editMessage').style.color = '#c0392b';
+      return;
     }
 
-    addProductForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('prodName').value.trim();
-        const brand = document.getElementById('prodBrand').value.trim();
-        const price = parseFloat(document.getElementById('prodPrice').value);
-        let imageUrl = document.getElementById('prodImageUrl').value.trim();
-        const fileInput = document.getElementById('prodImageFile');
-        const file = fileInput.files[0];
-        const isHit = document.getElementById('prodHit').checked;
+    product.name = name;
+    product.brand = brand;
+    product.price = price;
+    product.description = description || '';
 
-        if (!name || !brand || isNaN(price)) return;
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        product.image = e.target.result;
+        saveChangesAndClose();
+      };
+      reader.readAsDataURL(file);
+    } else if (imageUrl) {
+      product.image = imageUrl;
+      saveChangesAndClose();
+    } else {
+      // keep existing image
+      saveChangesAndClose();
+    }
+  });
 
-        if (file) {
-            imageUrl = await fileToBase64(file);
-        }
-
-        if (!imageUrl) {
-            imageUrl = 'https://via.placeholder.com/200?text=' + encodeURIComponent(name);
-        }
-
-        const newProduct = { 
-            name, 
-            brand, 
-            price, 
-            image: imageUrl,
-            hit: isHit
-        };
-        
-        products.push(newProduct);
-        localStorage.setItem('garage48_products', JSON.stringify(products));
-
-        addProductForm.reset();
-        document.getElementById('prodHit').checked = false;
-        renderDeleteList();
-        renderCatalog();
-        renderHits();
-    });
-
-    // Первичный рендер
+  function saveChangesAndClose() {
+    saveProducts();
     renderHits();
-    renderCatalog();
-    renderDeleteList();
+    filterProducts();
+    renderAdminProductList();
+    editOverlay.classList.remove('active');
+    document.getElementById('editMessage').textContent = 'Изменения сохранены!';
+    document.getElementById('editMessage').style.color = '#0a7e0a';
+  }
+
+  // ----- INIT -----
+  renderHits();
+  renderCatalog(products);
+  setActivePage('home');
 });
