@@ -1,146 +1,186 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GARAGE 48 — магазин инструментов</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (бесплатный) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GARAGE 48</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- External CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Навигация -->
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                <span class="logo-text">GARAGE 48</span>
-                
-            </div>
-            <button class="burger" id="burgerBtn" aria-label="Меню">
-                <i class="fas fa-bars"></i>
-            </button>
-            <nav class="nav-menu" id="navMenu">
-                <a href="#" class="nav-link active" data-page="home">Главная</a>
-                <a href="#" class="nav-link" data-page="catalog">Каталог</a>
-                <a href="#" class="nav-link" data-page="contacts">Контакты</a>
-            </nav>
+
+  <!-- HEADER / NAV -->
+  <header class="header">
+    <div class="container header-container">
+      <div class="logo">
+        <span class="logo-text">GARAGE 48</span>
+      </div>
+      <nav class="nav">
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#" data-page="home" class="nav-link active">Главная</a></li>
+          <li><a href="#" data-page="catalog" class="nav-link">Каталог</a></li>
+          <li><a href="#" data-page="contacts" class="nav-link">Контакты</a></li>
+        </ul>
+        <div class="burger" id="burger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
         </div>
-    </header>
-
-    <main>
-        <!-- Главная -->
-        <section id="home" class="page active">
-            <div class="container hero">
-                <img src="garag1.PNG" alt="Инструменты GARAGE 48" class="hero-image">
-                <h1>Инструменты для <span class="accent">мастеров</span></h1>
-                <p>Надёжность, проверенная временем</p>
-                <a href="#" class="btn btn-primary" data-page="catalog">Перейти в каталог</a>
-            </div>
-            <div class="container">
-                <h2 class="section-title">ХИТЫ ПРОДАЖ</h2>
-                <div class="grid grid-4" id="hitsGrid"></div>
-            </div>
-        </section>
-
-        <!-- Каталог -->
-        <section id="catalog" class="page">
-            <div class="container">
-                <h2 class="section-title">Каталог инструментов</h2>
-                <!-- Фильтры -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <label>Производитель</label>
-                        <select id="filterBrand"><option value="">Все</option></select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Поиск</label>
-                        <input type="text" id="filterSearch" placeholder="Название...">
-                    </div>
-                    <div class="filter-group">
-                        <label>Цена от</label>
-                        <input type="number" id="filterPriceMin" placeholder="0">
-                    </div>
-                    <div class="filter-group">
-                        <label>Цена до</label>
-                        <input type="number" id="filterPriceMax" placeholder="999999">
-                    </div>
-                </div>
-                <div class="grid grid-4" id="catalogGrid"></div>
-            </div>
-            <!-- Кнопка админки -->
-            <button id="adminTrigger" class="admin-trigger" aria-label="админка"><i class="fas fa-at"></i></button>
-        </section>
-
-        <!-- Контакты -->
-        <section id="contacts" class="page">
-            <div class="container">
-                <h2 class="section-title">Контакты</h2>
-                <div class="contacts-grid">
-                    <div class="contact-item"><i class="fas fa-phone"></i> +7 (xxx) xxx-xx-xx</div>
-                    <div class="contact-item"><i class="fas fa-envelope"></i> garage48@tool.ru</div>
-                    <div class="contact-item socials">
-                        <a href="#"><i class="fab fa-vk"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                    <div class="contact-item"><i class="fas fa-map-pin"></i> г. Москва, ул. Инструментальная, д. 1</div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container footer-content">
-            <span>Дата основания: 2020</span>
-            <div class="partners">
-                <i class="fas fa-toolbox"></i>
-                <i class="fas fa-hammer"></i>
-                <i class="fas fa-wrench"></i>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Модальное окно админки -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content light-bg">
-            <span class="close-modal" id="closeModal">&times;</span>
-            <h3>Вход в админ-панель</h3>
-            <form id="loginForm">
-                <input type="text" id="loginUser" placeholder="Логин" required>
-                <input type="password" id="loginPass" placeholder="Пароль" required>
-                <button type="submit" class="btn btn-primary">Войти</button>
-            </form>
-            <div id="adminPanel" style="display:none;">
-                <h4>Добавить товар</h4>
-                <form id="addProductForm">
-                    <input type="text" id="prodName" placeholder="Название" required>
-                    <input type="text" id="prodBrand" placeholder="Производитель" required>
-                    <input type="number" id="prodPrice" placeholder="Цена (руб)" required>
-                    <input type="text" id="prodImageUrl" placeholder="Ссылка на картинку">
-                    <div class="file-upload">
-                        <label>Загрузить с телефона</label>
-                        <input type="file" id="prodImageFile" accept="image/*">
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="prodHit">
-                        <label for="prodHit">Хит продаж ⭐</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Добавить</button>
-                </form>
-                
-                <!-- Секция удаления товаров -->
-                <h4 style="margin-top: 30px;">Удалить товар</h4>
-                <div class="delete-list" id="deleteList"></div>
-                
-                <button id="logoutAdmin" class="btn btn-secondary" style="margin-top: 20px;">Выйти</button>
-            </div>
-        </div>
+      </nav>
     </div>
+  </header>
 
-    <script src="script.js"></script>
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- HOME -->
+    <section id="page-home" class="page active-page">
+      <div class="container hero">
+        <!-- Большой логотип на главной -->
+        <div class="hero-logo">
+          <div class="hero-logo-image">
+            <img src="garag1.PNG" alt="GARAGE 48">
+          </div>
+          <div class="hero-logo-text">
+            <span class="hero-logo-sub">ИНСТРУМЕНТЫ ДЛЯ</span>
+            <span class="hero-logo-main">МАСТЕРОВ</span>
+            <span class="hero-logo-brand">GARAGE</span>
+          </div>
+        </div>
+        <p class="hero-sub">Широкий выбор профессионального оборудования</p>
+        <div class="hero-buttons">
+          <a href="#" data-page="catalog" class="btn btn-primary hero-btn">Перейти в каталог</a>
+        </div>
+      </div>
+      <div class="container hits-section">
+        <h2 class="section-title">ХИТЫ ПРОДАЖ</h2>
+        <div class="hits-grid" id="hitsGrid"></div>
+      </div>
+    </section>
+
+    <!-- CATALOG -->
+    <section id="page-catalog" class="page">
+      <div class="container catalog-container">
+        <h2 class="section-title">Каталог товаров</h2>
+        <!-- Filters -->
+        <div class="filters">
+          <div class="filter-group">
+            <input type="text" id="filterSearch" placeholder="Поиск по названию" class="filter-input">
+          </div>
+          <div class="filter-group">
+            <input type="text" id="filterBrand" placeholder="Производитель" class="filter-input">
+          </div>
+          <div class="filter-group price-range">
+            <input type="number" id="filterPriceFrom" placeholder="Цена от" class="filter-input" min="0">
+            <input type="number" id="filterPriceTo" placeholder="Цена до" class="filter-input" min="0">
+          </div>
+        </div>
+        <!-- Grid -->
+        <div class="catalog-grid" id="catalogGrid"></div>
+        <!-- Secret admin button (右下角) -->
+        <button class="admin-secret-btn" id="adminSecretBtn"><i class="fas fa-at"></i></button>
+      </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section id="page-contacts" class="page">
+      <div class="container contacts-wrapper">
+        <h2 class="section-title">Контакты</h2>
+        <div class="contacts-grid">
+          <div class="contact-item"><i class="fas fa-phone-alt"></i> +7 (495) 123-45-67</div>
+          <div class="contact-item"><i class="fas fa-envelope"></i> info@garage48.ru</div>
+          <div class="contact-item social-icons">
+            <a href="#"><i class="fab fa-vk"></i></a>
+            <a href="#"><i class="fab fa-telegram-plane"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+          </div>
+          <div class="contact-item"><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Инструментальная, д. 8</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <span>Дата основания: 2024</span>
+      <div class="partner-icons">
+        <i class="fas fa-cogs"></i>
+        <i class="fas fa-wrench"></i>
+        <i class="fas fa-tools"></i>
+        <i class="fas fa-bolt"></i>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ADMIN MODAL (overlay) -->
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-modal">
+      <span class="admin-close" id="adminClose">&times;</span>
+      <h3 class="admin-title">Админ-панель</h3>
+      <div id="adminLoginForm">
+        <input type="text" id="adminLogin" placeholder="Логин" class="admin-input">
+        <input type="password" id="adminPassword" placeholder="Пароль" class="admin-input">
+        <button id="adminLoginBtn" class="btn admin-btn">Войти</button>
+        <div id="adminMessage" class="admin-message"></div>
+      </div>
+      <div id="adminPanel" style="display:none;">
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="add">➕ Добавить</button>
+          <button class="admin-tab" data-tab="manage">📋 Управление</button>
+        </div>
+        
+        <!-- Вкладка Добавления -->
+        <div id="adminTabAdd" class="admin-tab-content active">
+          <h4>Добавить товар</h4>
+          <input type="text" id="addName" placeholder="Название" class="admin-input">
+          <input type="text" id="addBrand" placeholder="Производитель" class="admin-input">
+          <input type="number" id="addPrice" placeholder="Цена" class="admin-input">
+          <textarea id="addDescription" placeholder="Описание и характеристики" class="admin-input admin-textarea" rows="3"></textarea>
+          <input type="text" id="addImageUrl" placeholder="Ссылка на картинку" class="admin-input">
+          <div class="file-upload-wrapper">
+            <label for="addImageFile" class="file-label">Загрузить с телефона</label>
+            <input type="file" id="addImageFile" accept="image/*" class="file-input">
+          </div>
+          <button id="addProductBtn" class="btn admin-btn">Добавить товар</button>
+        </div>
+        
+        <!-- Вкладка Управления -->
+        <div id="adminTabManage" class="admin-tab-content">
+          <h4>Управление товарами</h4>
+          <div class="admin-product-list" id="adminProductList"></div>
+        </div>
+        
+        <div id="adminPanelMessage" class="admin-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal для редактирования товара -->
+  <div class="edit-overlay" id="editOverlay">
+    <div class="edit-modal admin-modal">
+      <span class="admin-close" id="editClose">&times;</span>
+      <h4 class="admin-title">Редактировать товар</h4>
+      <input type="hidden" id="editProductId">
+      <input type="text" id="editName" placeholder="Название" class="admin-input">
+      <input type="text" id="editBrand" placeholder="Производитель" class="admin-input">
+      <input type="number" id="editPrice" placeholder="Цена" class="admin-input">
+      <textarea id="editDescription" placeholder="Описание и характеристики" class="admin-input admin-textarea" rows="3"></textarea>
+      <input type="text" id="editImageUrl" placeholder="Ссылка на картинку" class="admin-input">
+      <div class="file-upload-wrapper">
+        <label for="editImageFile" class="file-label">Загрузить с телефона</label>
+        <input type="file" id="editImageFile" accept="image/*" class="file-input">
+      </div>
+      <button id="saveEditBtn" class="btn admin-btn">Сохранить изменения</button>
+      <div id="editMessage" class="admin-message"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
