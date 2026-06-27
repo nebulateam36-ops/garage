@@ -36,19 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   loadProducts();
 
-  // ----- RESET TO DEFAULT (for GitHub Pages) -----
-  function resetToDefault() {
-    if (confirm('Сбросить все товары до заводских настроек?')) {
-      products = JSON.parse(JSON.stringify(defaultProducts));
-      saveProducts();
-      renderHits();
-      filterProducts();
-      renderAdminProductList();
-      document.getElementById('adminPanelMessage').textContent = 'Товары сброшены до заводских!';
-      document.getElementById('adminPanelMessage').style.color = '#0a7e0a';
-    }
-  }
-
   // ----- RENDER FUNCTIONS -----
   function renderHits() {
     const hits = products.filter(p => p.isHit === true);
@@ -285,18 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
     `).join('');
-    
-    // Add reset button if not exists
-    if (!document.getElementById('resetDefaultBtn')) {
-      const resetBtn = document.createElement('button');
-      resetBtn.id = 'resetDefaultBtn';
-      resetBtn.className = 'btn admin-btn';
-      resetBtn.style.marginTop = '16px';
-      resetBtn.style.background = '#dc3545';
-      resetBtn.textContent = '🔄 Сбросить товары (заводские)';
-      resetBtn.onclick = resetToDefault;
-      list.parentNode.appendChild(resetBtn);
-    }
   }
 
   // ----- GLOBAL FUNCTIONS for admin (used in onclick) -----
